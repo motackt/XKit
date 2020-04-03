@@ -1,5 +1,5 @@
 //* TITLE XKit Patches **//
-//* VERSION 7.2.17 **//
+//* VERSION 7.3.0 **//
 //* DESCRIPTION Patches framework **//
 //* DEVELOPER new-xkit **//
 
@@ -84,21 +84,40 @@ XKit.extensions.xkit_patches = new Object({
 		window.addEventListener("message", XKit.blog_listener.eventHandler);
 
 		// Scrape Tumblr's data object now that we can run add_function
-		XKit.tools.add_function(function() {
-			var blogs = [];
-			try {
-				var models = Tumblr.dashboardControls.allTumblelogs;
-				models.filter(function(model) {
-					return model.attributes.hasOwnProperty("is_current");
-				}).forEach(function(model) {
-					blogs.push(model.attributes.name);
+		const blog_scraper = XKit.page.react ?
+			function() {
+				/* globals tumblr */
+				let blogs = [];
+				Promise.race([
+					new Promise((resolve) => setTimeout(resolve, 30000)),
+					(async() => {
+						const {response} = await tumblr.apiFetch("/v2/user/info", {
+							queryParams: {'fields[blogs]': 'name'},
+						});
+						blogs = response.user.blogs.map(blog => blog.name);
+					})()
+				]).finally(() => {
+					window.postMessage({
+						xkit_blogs: blogs
+					}, window.location.protocol + "//" + window.location.host);
 				});
-			} catch (e) {} finally {
-				window.postMessage({
-					xkit_blogs: blogs
-				}, window.location.protocol + "//" + window.location.host);
-			}
-		}, true);
+			} :
+			function() {
+				var blogs = [];
+				try {
+					var models = Tumblr.dashboardControls.allTumblelogs;
+					models.filter(function(model) {
+						return model.attributes.hasOwnProperty("is_current");
+					}).forEach(function(model) {
+						blogs.push(model.attributes.name);
+					});
+				} catch (e) {} finally {
+					window.postMessage({
+						xkit_blogs: blogs
+					}, window.location.protocol + "//" + window.location.host);
+				}
+			};
+		XKit.tools.add_function(blog_scraper, true);
 
 		XKit.tools.add_function(function fix_autoplaying_yanked_videos() {
 
@@ -165,6 +184,16 @@ XKit.extensions.xkit_patches = new Object({
 
 	patches: {
 		"7.9.1": function() {
+			XKit.tools.normalize_indentation = (level, string) => {
+				const lines = string.split("\n");
+				const indentation_level = _.minBy(
+					lines.map(line => line.match(/^[ \t]+/)),
+					i => i ? i[0].length : Infinity
+				) || '';
+
+				const leading_indentation = new RegExp(`^${indentation_level}`);
+				return lines.map(line => line.replace(leading_indentation, level)).join("\n");
+			};
 
 			/**
 			 * Gets redpop translation strings for selecting elements via aria labels
@@ -230,8 +259,11 @@ XKit.extensions.xkit_patches = new Object({
 
 				try {
 					var script = document.createElement("script");
-					script.textContent = "var add_tag = " + JSON.stringify(addt) + ";";
-					script.textContent = script.textContent + (exec ? "(" : "") + func.toString() + (exec ? ")();" : "");
+					script.textContent = "var add_tag = " + JSON.stringify(addt) + ";\n";
+					script.textContent = script.textContent +
+						(exec ? "(" : "") +
+						XKit.tools.normalize_indentation('', func.toString()) +
+						(exec ? ")();" : "");
 					if (XKit.tools.add_function_nonce) {
 						script.setAttribute('nonce', XKit.tools.add_function_nonce);
 					}
@@ -244,6 +276,56 @@ XKit.extensions.xkit_patches = new Object({
 						'<div class="xkit-button default" id="xkit-close-message">OK</div>'
 					);
 				}
+			};
+
+			const async_callbacks = {};
+			window.addEventListener('message', event => {
+				const target_origin = window.location.protocol + "//" + window.location.host;
+				if (event.origin === target_origin && event.data.xkit_callback_nonce) {
+					async_callbacks[event.data.xkit_callback_nonce](event.data);
+					delete async_callbacks[event.data.xkit_callback_nonce];
+				}
+			});
+
+			XKit.tools.async_add_function = function(func, arguments) {
+				return new Promise((resolve, reject) => {
+					const callback_nonce = Math.random();
+
+					const add_func = `(async ({callback_nonce, arguments}) => {
+						try {
+							const return_value = await (${
+								XKit.tools.normalize_indentation("\t".repeat(7), func.toString())
+							})(arguments);
+
+							window.postMessage({
+								xkit_callback_nonce: callback_nonce,
+								return_value,
+							}, window.location.protocol + "//" + window.location.host);
+						} catch (exception) {
+							window.postMessage({
+								xkit_callback_nonce: callback_nonce,
+								exception: {
+									...exception,
+									message: exception.message,
+									stack: exception.stack,
+								},
+							})
+						}
+					})(add_tag)`;
+
+					async_callbacks[callback_nonce] = (data) => {
+						if ('return_value' in data) {
+							resolve(data.return_value);
+						} else {
+							const original_exception = data.exception && JSON.parse(data.exception);
+							const error = new Error(`Error in injected function (${original_exception.message})`);
+							error.cause = original_exception;
+							reject();
+						}
+					};
+
+					XKit.tools.add_function(add_func, false, {callback_nonce, arguments});
+				});
 			};
 
 			/**
@@ -599,6 +681,66 @@ XKit.extensions.xkit_patches = new Object({
 
 			XKit.interface.post_window.reblogging_from =
 				() => $(".post-form--header .reblog_source .reblog_name").text();
+
+			/**
+			 * @param {JQuery} obj - Post element
+			 * @return {Promise<Object>} Resolves to an interface Post Object or rejects
+			 */
+			XKit.interface.async_post = function(obj) {
+				if ($(obj).attr('data-id') && XKit.page.react) {
+					return XKit.interface.react.post(obj);
+				} else {
+					const post_object = XKit.interface.post(obj);
+					if (post_object.error) {
+						return Promise.reject(post_object);
+					} else {
+						return Promise.resolve(post_object);
+					}
+				}
+			};
+
+			XKit.interface.react = {
+				post_props: async function(post_id) {
+					// eslint-disable-next-line no-shadow
+					return XKit.tools.async_add_function(({post_id}) => {
+						const keyStartsWith = (obj, prefix) =>
+							Object.keys(obj).find(key => key.startsWith(prefix));
+						const element = document.querySelector(`[data-id="${post_id}"]`);
+						const fiber = element[keyStartsWith(element, '__reactInternalInstance')];
+
+						return fiber.return.memoizedProps.timelineObject;
+					}, {post_id});
+				},
+
+				post: async function($element) {
+					const id = $element.data('id');
+					const post = await this.post_props(id);
+
+					return {
+						id: id,
+						root_id: post.rebloggedRootId,
+						reblog_key: post.reblogKey,
+						owner: post.blogName,
+						get tumblelog_key() { throw new Error('not supported'); },
+						liked: post.liked,
+						permalink: post.postUrl,
+						type: 'regular',
+						body: $element.find("header + div").html(),
+						get animated() { throw new Error('not supported'); },
+						is_reblogged: !!post.rebloggedFromUuid,
+						is_mine: post.canEdit,
+						is_following: post.followed,
+						can_edit: post.canEdit,
+						source_owner: post.rebloggedRootName,
+						reblog_link: post.rebloggedFromUrl,
+						reblog_owner: post.rebloggedFromName,
+						reblog_original_id: post.rebloggedFromId,
+						note_count: post.noteCount,
+						avatar: post.blog.avatar[post.blog.avatar.length - 1].url,
+						tags: post.tags.join(","),
+					};
+				}
+			};
 		},
 
 		"7.9.0": function() {},
