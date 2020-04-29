@@ -1,5 +1,5 @@
 //* TITLE XKit Patches **//
-//* VERSION 7.3.4 **//
+//* VERSION 7.3.5 **//
 //* DESCRIPTION Patches framework **//
 //* DEVELOPER new-xkit **//
 
@@ -184,6 +184,28 @@ XKit.extensions.xkit_patches = new Object({
 
 	patches: {
 		"7.9.1": function() {
+			XKit.post_listener.observer = new MutationObserver(mutations => {
+				const criteria = XKit.page.react ? "[data-id]" : ".post_container, .post";
+				const new_posts = mutations.some(({addedNodes}) => {
+					for (let i = 0; i < addedNodes.length; i++) {
+						const $addedNode = $(addedNodes[i]);
+						if ($addedNode.is(criteria) || $addedNode.find(criteria).length) {
+							return true;
+						}
+					}
+				});
+
+				if (new_posts) {
+					Object.values(XKit.post_listener.callbacks).forEach(list => list.forEach(callback => {
+						try {
+							callback();
+						} catch (e) {
+							console.error(e);
+						}
+					}));
+				}
+			});
+      
 			/**
 			 * Show an XKit alert window
 			 * @param {String} title - Text for alert window's title bar
@@ -2772,23 +2794,6 @@ XKit.extensions.xkit_patches = new Object({
 						}
 					}
 				},
-				observer: new MutationObserver(function(mutations) {
-					for (var mutation in mutations) {
-						var $target = $(mutations[mutation].target);
-						if ($target.hasClass("posts") || $target.parent().hasClass("posts") || $(mutations[mutation].addedNodes).find(".post").length) {
-							for (var x in XKit.post_listener.callbacks) {
-								for (var i in XKit.post_listener.callbacks[x]) {
-									try {
-										XKit.post_listener.callbacks[x][i]();
-									} catch (e) {
-										console.error("Could not run callback for " + x + ": " + e.message);
-									}
-								}
-							}
-							break;
-						}
-					}
-				}),
 				check: function() {
 					XKit.post_listener.observer.observe($("body")[0], {
 						childList: true,
