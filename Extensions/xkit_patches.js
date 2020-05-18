@@ -1,5 +1,5 @@
 //* TITLE XKit Patches **//
-//* VERSION 7.4.0 **//
+//* VERSION 7.4.1 **//
 //* DESCRIPTION Patches framework **//
 //* DEVELOPER new-xkit **//
 
@@ -180,10 +180,10 @@ XKit.extensions.xkit_patches = new Object({
 		}, 1000);
 	},
 
-	run_order: ["7.8.1", "7.8.2", "7.9.0", "7.9.1"],
+	run_order: ["7.8.1", "7.8.2", "7.9.0", "7.9.1", "7.9.2"],
 
 	patches: {
-		"7.9.1": function() {
+		"7.9.2": function() {
 			XKit.post_listener.observer = new MutationObserver(mutations => {
 				const criteria = XKit.page.react ? "[data-id]" : ".post_container, .post";
 				const new_posts = mutations.some(({addedNodes}) => {
@@ -898,6 +898,8 @@ XKit.extensions.xkit_patches = new Object({
 				});
 			};
 		},
+
+		"7.9.1": function() {},
 
 		"7.9.0": function() {},
 
