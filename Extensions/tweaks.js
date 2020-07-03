@@ -1,5 +1,5 @@
 //* TITLE Tweaks **//
-//* VERSION 6.0.1 **/
+//* VERSION 6.0.2 **/
 //* DESCRIPTION Various little tweaks for your dashboard. **//
 //* DEVELOPER new-xkit **//
 //* DETAILS These are small little tweaks that allows you customize your dashboard. If you have used XKit 6, you will notice that some of the extensions have been moved here as options you can toggle. Keep in mind that some of the tweaks (the ones marked with a '*') can slow down your computer. **//
@@ -640,9 +640,9 @@ XKit.extensions.tweaks = new Object({
 		if (XKit.extensions.tweaks.preferences.pin_avatars.value) {
 			if (!XKit.browser().mobile) { // mobile stuff
 				if (XKit.page.react) {
-					let stickyContainerSelector = XKit.css_map.keyToCss('stickyContainer');
-					XKit.extensions.tweaks.add_css(`${stickyContainerSelector}:first-child {
-						position: unset;
+					let stickyContainerSelector = XKit.css_map.keyToClasses('stickyContainer').map(cssClass => `.${cssClass} div:first-child`).join(',');
+					XKit.extensions.tweaks.add_css(`${stickyContainerSelector} {
+						position: unset !important;
 					}`, 'xkit_pin_avatars');
 				} else {
 					XKit.extensions.tweaks.add_css(".post_avatar.post-avatar--fixed { position: absolute !important; top: 0 !important; left: -85px !important; }  .post_avatar.post-avatar--absolute { position: absolute; top: 0 !important; left: -85px !important; bottom: inherit !important; }  .post_avatar.post-avatar--sticky .avatar-wrapper { position: absolute !important; top: 0px !important; height: auto; width: auto; } .post_avatar.post-avatar--sticky { height: 64px !important; }", "xkit_pin_avatars");
@@ -803,7 +803,7 @@ XKit.extensions.tweaks = new Object({
 		}
 		
 		if (XKit.extensions.tweaks.preferences.grayscale_new_post_button.value) {
-			let postIconButtonSel = XKit.css_map.keyToCss('postIconButton').map(cssClass => `${cssClass} span`).join(',');
+			let postIconButtonSel = XKit.css_map.keyToClasses('postIconButton').map(cssClass => `.${cssClass} span`).join(',');
 			XKit.extensions.tweaks.add_css(`${postIconButtonSel} {
 				filter: grayscale(100%);
 			}`, 'xkit_tweaks_grayscale_new_post_button');
