@@ -184,6 +184,28 @@ XKit.extensions.xkit_patches = new Object({
 
 	patches: {
 		"7.9.2": function() {
+
+			/**
+			 * Given a list of different collections in `items`, return all
+			 * possible ways to select exactly one element from each collection
+			 *
+			 * For example, given `[[1, 2], ['a', 'b']]`, return
+			 * `[[1, 'a'], [1, 'b'], [2, 'a'], [2, 'b']]`.
+			 *
+			 * @param {Array<Array<Object>>} items - a list of collections to combine
+			 * @param {Array} current - The current recursive subtree, for tail recursion.
+			 * @returns {Array<Array<Object>>} - the list of combinations
+			 */
+			XKit.tools.cartesian_product = (items, current = []) => {
+				if (current.length < items.length) {
+					return items[current.length].flatMap(pick =>
+						XKit.tools.cartesian_product(items, current.concat(pick))
+					);
+				} else {
+					return [current];
+				}
+			};
+
 			XKit.post_listener.observer = new MutationObserver(mutations => {
 				const criteria = XKit.page.react ? "[data-id]" : ".post_container, .post";
 				const new_posts = mutations.some(({addedNodes, target}) => {
@@ -254,6 +276,19 @@ XKit.extensions.xkit_patches = new Object({
 				});
 			};
 
+			/**
+			 * Removes the leading whitespace that occurrs on every line of
+			 * `string`, and replaces it with the string passed in as `level`.
+			 * This is often helpful for making the output of template strings
+			 * more readable, by normalizing the additional indentation that
+			 * comes with their position in a source file.
+			 *
+			 * @param {String} level - the amount of indentation to add to
+			 *     every line, as a string. May be '' for no indentation.
+			 * @param {String} string - the input string to remove and/or add
+			 *     indentation from/to.
+			 * @returns {String} - the normalized string
+			 */
 			XKit.tools.normalize_indentation = (level, string) => {
 				const lines = string.split("\n");
 				const indentation_level = _.minBy(
@@ -357,6 +392,20 @@ XKit.extensions.xkit_patches = new Object({
 				}
 			});
 
+			/**
+			 * Copies a function from the addon context into the page context
+			 * and returns the result of the function as a promise.
+			 *
+			 * @param {Function} func - This function is rendered to a string
+			 *     and then injected into the page.
+			 * @param {Object} arguments - arguments to pass to the function.
+			 *     Since the function is rendered to a string before being
+			 *     injected, it can't close over any variables, so everything
+			 *     used from the calling scope must be passed as an argument
+			 *
+			 * @return {Promise} - the return value or thrown error from the
+			 *     injected function
+			 */
 			XKit.tools.async_add_function = function(func, arguments) {
 				return new Promise((resolve, reject) => {
 					const callback_nonce = Math.random();
@@ -636,12 +685,14 @@ XKit.extensions.xkit_patches = new Object({
 					});
 					return this.cssMap;
 				},
+
 				keyToClasses: function(key) {
 					if (!this.cssMap || !this.cssMap.hasOwnProperty(key)) {
 						return;
 					}
 					return this.cssMap[key];
 				},
+
 				keyToCss: function(key) {
 					const classes = this.keyToClasses(key);
 					if (!classes) {
@@ -649,7 +700,26 @@ XKit.extensions.xkit_patches = new Object({
 					}
 					return classes.map(cls => '.' + cls).join(', ');
 				},
+
+				/**
+				 * Given any number of keys, turns them into a css selector
+				 * where key[0] contains key[1], etc.
+				 *
+				 * Because CSS commas always take precedence over spaces, and
+				 * :is has poor browser support, this requires enumerating all
+				 * possible combinations of `key[0] key[1]` and then separating
+				 * them with commas.
+				 *
+				 * @param {...String} keys - the cssMap keys to combine.
+				 * @returns {String} - the combined CSS selector.
+				 */
+				descendantSelector: function(...keys) {
+					return XKit.tools.cartesian_product(
+						keys.map(key => this.keyToClasses(key).map(cls => `.${cls}`))
+					).map(selectors => selectors.join(' ')).join(',');
+				},
 			};
+			_.bindAll(XKit.css_map, ['getCssMap', 'keyToClasses', 'keyToCss', 'descendantSelector']);
 
 			XKit.tools.Nx_XHR = details => new Promise((resolve, reject) => {
 				details.timestamp = new Date().getTime() + Math.random();
