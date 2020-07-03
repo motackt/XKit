@@ -1,5 +1,5 @@
 //* TITLE Tweaks **//
-//* VERSION 6.0.2 **/
+//* VERSION 6.0.3 **/
 //* DESCRIPTION Various little tweaks for your dashboard. **//
 //* DEVELOPER new-xkit **//
 //* DETAILS These are small little tweaks that allows you customize your dashboard. If you have used XKit 6, you will notice that some of the extensions have been moved here as options you can toggle. Keep in mind that some of the tweaks (the ones marked with a '*') can slow down your computer. **//
@@ -324,6 +324,12 @@ XKit.extensions.tweaks = new Object({
 		},
 		grayscale_new_post_button: {
 			text: "Turn the New Post button gray",
+			default: false,
+			value: false,
+			desktop_only: true
+		},
+		subtle_follow_button: {
+			text: "Make the Follow button more subtle inside posts",
 			default: false,
 			value: false,
 			desktop_only: true
@@ -786,11 +792,11 @@ XKit.extensions.tweaks = new Object({
 				${notificationBadgeStyle}
 			}`, 'xkit_tweaks_notification_badge_style');
 		}
-		
+
 		if (XKit.extensions.tweaks.preferences.hide_activity_notification_badge.value) {
 			let notificationBadgeSel = XKit.css_map.keyToCss('notificationBadge');
 			let activityAriaLabel = await XKit.interface.translate('Activity');
-			XKit.extensions.tweaks.add_css(`button[aria-label="${activityAriaLabel}"] + ${notificationBadgeSel} { 
+			XKit.extensions.tweaks.add_css(`button[aria-label="${activityAriaLabel}"] + ${notificationBadgeSel} {
 				display: none !important;
 			}`, 'xkit_tweaks_hide_activity_notification_badge');
 		}
@@ -801,14 +807,25 @@ XKit.extensions.tweaks = new Object({
 				box-shadow: none !important;
 			}`, 'xkit_tweaks_hide_post_highlight');
 		}
-		
+
 		if (XKit.extensions.tweaks.preferences.grayscale_new_post_button.value) {
 			let postIconButtonSel = XKit.css_map.keyToClasses('postIconButton').map(cssClass => `.${cssClass} span`).join(',');
 			XKit.extensions.tweaks.add_css(`${postIconButtonSel} {
 				filter: grayscale(100%);
 			}`, 'xkit_tweaks_grayscale_new_post_button');
 		}
-		
+
+		if (XKit.extensions.tweaks.preferences.subtle_follow_button.value) {
+			let followButtonSelectors = XKit.css_map.keyToClasses('followButton');
+			let postSelectors = XKit.css_map.keyToClasses('post');
+			let postFollowButtonSelectors = postSelectors.map(postCssClass => {
+				return followButtonSelectors.map(followCssClass => `.${postCssClass} .${followCssClass}`).join(', ');
+			}).join(', ');
+			XKit.extensions.tweaks.add_css(`${postFollowButtonSelectors} {
+				color: var(--gray-40) !important;
+			}`, 'xkit_tweaks_subtle_follow_button');
+		}
+
 		XKit.tools.add_css(XKit.extensions.tweaks.css_to_add, "xkit_tweaks");
 	},
 
