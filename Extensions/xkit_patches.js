@@ -1,5 +1,5 @@
 //* TITLE XKit Patches **//
-//* VERSION 7.4.6 **//
+//* VERSION 7.4.7 **//
 //* DESCRIPTION Patches framework **//
 //* DEVELOPER new-xkit **//
 
@@ -893,7 +893,7 @@ XKit.extensions.xkit_patches = new Object({
 
 					return {
 						id: id,
-						root_id: post.rebloggedRootId,
+						root_id: post.rebloggedRootId || id,
 						reblog_key: post.reblogKey,
 						owner: post.blogName,
 						get tumblelog_key() { throw new Error('not supported'); },
@@ -1051,7 +1051,7 @@ XKit.extensions.xkit_patches = new Object({
 					if (controls.length > 0) {
 						controls.prepend(m_html);
 
-						controls.on('click', '.' + class_name, function() {
+						controls.on('click', '.' + class_name, function(event) {
 							if ($(this).hasClass("xkit-interface-working") || $(this).hasClass("xkit-interface-disabled")) { return; }
 							if (typeof func === "function") { func.call(this, event); }
 						});
@@ -1289,6 +1289,10 @@ XKit.extensions.xkit_patches = new Object({
 				m_return.endless = $("body").hasClass("without_auto_paginate") === false;
 
 				return m_return;
+			};
+
+			XKit.interface.hide = function(selector, extension) {
+				XKit.tools.add_css(`${selector} {height: 0; margin: 0; overflow: hidden;}`, extension);
 			};
 		},
 
