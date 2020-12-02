@@ -313,7 +313,7 @@ XKit.extensions.xkit_preferences = new Object({
 				if (new_version > my_version) {
 					XKit.notifications.add("<b>Please update XKit!</b><br/>A new version of XKit is available for your browser. " +
 						"Please click here for more information and how you can easily and quickly update now.", "warning", true, function() {
-							XKit.window.show("Please update XKit",
+						XKit.window.show("Please update XKit",
 							"<b>A new version of XKit, version " + mb_object.version + " is available.</b><br/>" +
 							"You are currently using XKit version " + XKit.version + ".<br/><br/>" +
 							"Please update to the latest version as soon as possible. If you don't, XKit might not work properly, " +
@@ -322,7 +322,7 @@ XKit.extensions.xkit_preferences = new Object({
 							"warning",
 							'<a class="xkit-button default" href="https://new-xkit-extension.tumblr.com/downloads">Go to Download page</a>' +
 							'<div class="xkit-button" id="xkit-close-message">Not now, remind me later.</div>');
-						});
+					});
 				}
 			});
 		},
@@ -2215,9 +2215,7 @@ XKit.extensions.xkit_preferences = new Object({
 		$("#xkit-panel-extension-info").click(function() {
 
 			var text = "XKit version " + XKit.version + "\n" +
-					"extensions:\n" + XKit.installed.list().map(function(i) {
-						return "   " + i + ": " + XKit.installed.version(i) + (XKit.installed.enabled(i) ? "" : " (disabled)");
-					}).join("\n");
+					"extensions:\n" + XKit.installed.list().map(i => "   " + i + ": " + XKit.installed.version(i) + (XKit.installed.enabled(i) ? "" : " (disabled)")).join("\n");
 			var timestamp = new Date();
 
 			XKit.tools.make_file("XKit Basic Export " + timestamp.getTime() + ".txt", text);
