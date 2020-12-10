@@ -755,8 +755,6 @@ var xkit_global_start = Date.now();  // log start timestamp
 
 				$("#tiptip_holder").css("z-index", "99000000");
 
-				// from xkit.js
-				/* globals centerIt */
 				centerIt($("#xkit-window"));
 				$("#xkit-window").fadeIn('fast');
 
@@ -3278,7 +3276,7 @@ var xkit_global_start = Date.now();  // log start timestamp
 	};
 }());
 
-var centerIt = function(el /* (jQuery element) Element to center */) {
+var centerIt = function(el /* (jQuery element) Element to center */) { // eslint-disable-line no-redeclare
 	if (!el) {
 		return;
 	}
