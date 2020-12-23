@@ -1,5 +1,5 @@
 //* TITLE XKit Preferences **//
-//* VERSION 7.6.1 **//
+//* VERSION 7.6.0 **//
 //* DESCRIPTION Lets you customize XKit **//
 //* DEVELOPER new-xkit **//
 
@@ -59,16 +59,10 @@ XKit.extensions.xkit_preferences = new Object({
 			XKit.tools.add_css(mobile_control_panel, 'mobile_xkit_menu');
 		}
 
-		if (XKit.page.react) {
-			XKit.interface.translate("Account").then(AccountLabel => {
-				$(`header div div:has([aria-label="${AccountLabel}"])`).before(m_html);
-				$(".xkit--react #xkit_button").attr('tabindex', '0');
-				$("#xkit_button").click(XKit.extensions.xkit_preferences.open);
-			});
-		} else {
-			$("#account_button").before(m_html);
-			$("#account_button > button").attr("tabindex", "8");
-		}
+		$("#account_button").before(m_html);
+		$("#account_button > button").attr("tabindex", "8");
+		$("header div div:has([aria-label='Account'])").before(m_html);
+		$(".xkit--react #xkit_button").attr('tabindex', '0');
 
 		$(".no-js").removeClass("no-js"); // possibly unnecessary // mobile stuff
 		$(".mobile-logo").html(mobile_html); // mobile stuff
