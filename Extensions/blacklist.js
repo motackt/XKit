@@ -116,8 +116,6 @@ XKit.extensions.blacklist = new Object({
 	blacklisted: [],
 	whitelisted: [],
 
-	edit_label: "",
-
 	run: async function() {
 		this.running = true;
 
@@ -126,9 +124,6 @@ XKit.extensions.blacklist = new Object({
 		}
 
 		await XKit.css_map.getCssMap();
-		if (XKit.page.react) {
-			this.edit_label = await XKit.interface.translate("Edit");
-		}
 
 		if ($("body").hasClass("dashboard_messages_inbox") === true || $("body").hasClass("dashboard_messages_submissions") === true) {
 			if (this.preferences.dont_on_inbox.value) {
@@ -565,10 +560,6 @@ XKit.extensions.blacklist = new Object({
 				// Add class to not do this twice.
 				$(this).addClass("xblacklist-done");
 
-				if (XKit.extensions.blacklist.preferences.dont_block_me.value && $(this).find(`[aria-label='${XKit.extensions.blacklist.edit_label}']`).length) {
-					return;
-				}
-
 				// Collect the tags
 				var tag_array = [];
 				const tagSel = XKit.css_map.keyToCss('tag') || '.post_tag';
@@ -674,7 +665,7 @@ XKit.extensions.blacklist = new Object({
 
 			} catch (e) {
 
-				console.error("Blacklist can't parse post: " + e.message);
+				// console.error("Can't parse post: " + e.message);
 				// $(this).css("background","red");
 
 			}
