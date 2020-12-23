@@ -396,9 +396,6 @@
 	display: none;
 }
 
-.xkit--react .reblogged svg[fill="var(--gray-65)"] {
-	fill: var(--green);
-}
 
 /* in-frame styles */
 
