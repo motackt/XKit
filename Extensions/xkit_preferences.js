@@ -1,5 +1,5 @@
 //* TITLE XKit Preferences **//
-//* VERSION 7.6.3 **//
+//* VERSION 7.6.2 **//
 //* DESCRIPTION Lets you customize XKit **//
 //* DEVELOPER new-xkit **//
 
@@ -606,7 +606,6 @@ XKit.extensions.xkit_preferences = new Object({
 
 		$("body").css("overflow", "hidden");
 		$("#xkit-control-panel").animate({ marginTop: '-200px', opacity: 1}, 500);
-		$("#xkit-control-panel").keydown(event => event.stopPropagation());
 		$("#xkit-control-panel-shadow").fadeIn('slow');
 		$("#xkit-control-panel-shadow").click(XKit.extensions.xkit_preferences.close);
 
