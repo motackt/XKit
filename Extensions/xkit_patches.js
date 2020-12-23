@@ -1,5 +1,5 @@
 //* TITLE XKit Patches **//
-//* VERSION 7.2.16 **//
+//* VERSION 7.2.15 **//
 //* DESCRIPTION Patches framework **//
 //* DEVELOPER new-xkit **//
 
@@ -177,9 +177,8 @@ XKit.extensions.xkit_patches = new Object({
 			 */
 			XKit.tools.add_function = function(func, exec, addt) {
 				if (!XKit.tools.add_function_nonce) {
-					const scripts = document.querySelectorAll('script');
-					for (let i = 0; i < scripts.length; i++) {
-						var nonce = scripts[i].getAttribute('nonce') || scripts[i].nonce;
+					for (const script of document.querySelectorAll('script')) {
+						const nonce = script.getAttribute('nonce') || script.nonce;
 						if (nonce) {
 							XKit.tools.add_function_nonce = nonce;
 							break;
