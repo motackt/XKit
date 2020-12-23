@@ -1,5 +1,5 @@
 //* TITLE Old Stats **//
-//* VERSION 1.0.0 **//
+//* VERSION 0.5.1 **//
 //* DESCRIPTION Blog stats where they were **//
 //* DEVELOPER New-XKit **//
 //* FRAME false **//
@@ -19,6 +19,7 @@ XKit.extensions.old_stats = new Object({
 		},
 		"switcher": {
 			text: "Show the blog switcher",
+			experimental: true,
 			default: true,
 			value: true
 		}
@@ -75,7 +76,7 @@ XKit.extensions.old_stats = new Object({
 				console.error("[Old Stats] Couldn't fetch blog info.");
 			},
 			onload: function(response) {
-				$("#dashboard_controls_open_blog, #dashboard_controls_open_blog + .small_links").remove();
+				$("#dashboard_controls_open_blog, .small_links").remove();
 				$("#right_column").prepend($(".small_links", response.responseText).css("margin", "0 0 18px")).prepend($("#dashboard_controls_open_blog", response.responseText));
 				$("#dashboard_controls_open_blog .selected").removeClass("selected");
 				$("#dashboard_controls_open_blog [data-sparkline]").prepend('<canvas id="old_stats_canvas" width="72" height="30" style="display: inline-block; width: 36px; height: 15px; vertical-align: top;">');
@@ -141,7 +142,7 @@ XKit.extensions.old_stats = new Object({
 				$(".old_stats_blog").off("click").remove();
 				if (!loading) {
 					$("#dashboard_controls_open_blog").children().removeAttr("style");
-					$("#dashboard_controls_open_blog + .small_links").removeAttr("style").css("margin", "0 0 18px");
+					$(".small_links").removeAttr("style").css("margin", "0 0 18px");
 				} else {
 					$("#dashboard_controls_open_blog").append(
 						'<li class="controls_section_item selected_blog">' +
@@ -153,7 +154,7 @@ XKit.extensions.old_stats = new Object({
 				loading = false;
 			} else {
 				$("#dashboard_controls_open_blog").children(":not(.selected_blog)").css("display", "none");
-				$("#dashboard_controls_open_blog + .small_links").css("display", "none");
+				$(".small_links").css("display", "none");
 				var current_blog = $(".no_push.selected_blog .currently_selected_blog").html(), do_append = false;
 
 				for (var x in blogs) {
@@ -193,7 +194,7 @@ XKit.extensions.old_stats = new Object({
 		this.running = false;
 		XKit.tools.remove_css("old_stats");
 		if (this.done) {
-			$("#dashboard_controls_open_blog, #dashboard_controls_open_blog + .small_links").remove();
+			$("#dashboard_controls_open_blog, .small_links").remove();
 		}
 	}
 });
