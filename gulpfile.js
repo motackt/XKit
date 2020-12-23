@@ -1,10 +1,12 @@
 /* eslint-env node */
 'use strict';
 
-var connect = require('connect'),
+var cache = require('gulp-cached'),
+	connect = require('connect'),
 	connectLogger = require('morgan'),
 	connectStatic = require('serve-static'),
 	del = require('del'),
+	eslint = require('gulp-eslint'),
 	fs = require('fs'),
 	gulp = require('gulp'),
 	gutil = require('gulp-util'),
@@ -38,7 +40,23 @@ gulp.task('clean:themes', function(cb) {
 
 gulp.task('clean', gulp.series('clean:extensions', 'clean:themes'));
 
-gulp.task('build:extensions', gulp.series('clean:extensions', function() {
+gulp.task('lint:scripts', function() {
+	var src = [].concat(
+		paths.scripts.dev,
+		paths.scripts.core,
+		paths.scripts.extensions
+	);
+
+	return gulp.src(src)
+		.pipe(cache('lint:scripts'))
+		.pipe(eslint())
+		.pipe(eslint.format())
+		.pipe(eslint.failAfterError());
+});
+
+gulp.task('lint', gulp.series('lint:scripts'));
+
+gulp.task('build:extensions', gulp.series('lint:scripts', 'clean:extensions', function() {
 	var extensionBuilder = require('./dev/builders/extension');
 	return gulp.src(paths.scripts.extensions)
 		.pipe(extensionBuilder())
@@ -107,4 +125,4 @@ gulp.task('server', gulp.series('build', function(callback) {
 	});
 }));
 
-gulp.task('default', gulp.series('build'));
+gulp.task('default', gulp.series('lint'));
