@@ -1,5 +1,5 @@
 //* TITLE One-Click Postage **//
-//* VERSION 4.4.14 **//
+//* VERSION 4.4.13 **//
 //* DESCRIPTION Lets you easily reblog, draft and queue posts **//
 //* DEVELOPER new-xkit **//
 //* FRAME false **//
@@ -829,21 +829,16 @@ XKit.extensions.one_click_postage = new Object({
 	},
 
 	check_if_alreadyreblogged: function() {
-		$(".post, [data-id]").not(".xkit_already_reblogged_check").each(async function() {
+		$(".post").not(".xkit_already_reblogged_check").each(function() {
 			var post_id = $(this).attr('data-root_id');
 			$(this).addClass("xkit_already_reblogged_check");
-
-			if (!post_id && XKit.page.react) {
-				const {root_id} = await XKit.interface.async_post($(this));
-				post_id = root_id;
-			}
 
 			if (XKit.extensions.one_click_postage.is_alreadyreblogged(post_id)) {
 				if (XKit.extensions.one_click_postage.preferences.enable_hide_alreadyreblogged.value) {
 					if (XKit.interface.where().dashboard === true) { $(this).remove(); }
 				}
 
-				XKit.extensions.one_click_postage.make_button_reblogged($(this).find('.post_control.reblog, a[role="button"][href*="/reblog/"]'));
+				XKit.extensions.one_click_postage.make_button_reblogged($(this).find(".post_control.reblog"));
 			}
 		});
 	},
