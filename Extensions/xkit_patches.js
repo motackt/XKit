@@ -1,5 +1,5 @@
 //* TITLE XKit Patches **//
-//* VERSION 7.4.6 **//
+//* VERSION 7.4.5 **//
 //* DESCRIPTION Patches framework **//
 //* DEVELOPER new-xkit **//
 
@@ -1253,7 +1253,7 @@ XKit.extensions.xkit_patches = new Object({
 					m_return.following = true;
 				}
 
-				if (document.location.href.indexOf("/tagged") !== -1) {
+				if ($("body").hasClass("tagged_actions_display") && document.location.href.indexOf("/tagged") !== 1) {
 					m_return.tagged = true;
 				}
 
