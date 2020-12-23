@@ -1,5 +1,5 @@
 //* TITLE XKit Patches **//
-//* VERSION 7.4.12 **//
+//* VERSION 7.4.11 **//
 //* DESCRIPTION Patches framework **//
 //* DEVELOPER new-xkit **//
 
@@ -124,6 +124,7 @@ XKit.extensions.xkit_patches = new Object({
 			if (!window._ || !window.jQuery) {
 				return;
 			}
+			/* globals _ */
 
 			if (_.get(window, "Tumblr.Prima.CrtPlayer")) {
 				window.Tumblr.Prima.CrtPlayer.prototype.onLoadedMetadata =
@@ -411,7 +412,7 @@ XKit.extensions.xkit_patches = new Object({
 			 *
 			 * @param {Function} func - This function is rendered to a string
 			 *     and then injected into the page.
-			 * @param {Object} args - arguments to pass to the function.
+			 * @param {Object} arguments - arguments to pass to the function.
 			 *     Since the function is rendered to a string before being
 			 *     injected, it can't close over any variables, so everything
 			 *     used from the calling scope must be passed as an argument
@@ -419,13 +420,13 @@ XKit.extensions.xkit_patches = new Object({
 			 * @return {Promise} - the return value or thrown error from the
 			 *     injected function
 			 */
-			XKit.tools.async_add_function = function(func, args) {
+			XKit.tools.async_add_function = function(func, arguments) {
 				return new Promise((resolve, reject) => {
 					const callback_nonce = Math.random();
 
-					const add_func = `(async ({callback_nonce, args}) => {
+					const add_func = `(async ({callback_nonce, arguments}) => {
 						try {
-							const return_value = await (${XKit.tools.normalize_indentation("\t".repeat(7), func.toString())})(args);
+							const return_value = await (${XKit.tools.normalize_indentation("\t".repeat(7), func.toString())})(arguments);
 
 							window.postMessage({
 								xkit_callback_nonce: callback_nonce,
@@ -454,7 +455,7 @@ XKit.extensions.xkit_patches = new Object({
 						}
 					};
 
-					XKit.tools.add_function(add_func, false, {callback_nonce, args});
+					XKit.tools.add_function(add_func, false, {callback_nonce, arguments});
 				});
 			};
 
