@@ -1,5 +1,5 @@
 //* TITLE Tag Tracking+ **//
-//* VERSION 1.6.8 **//
+//* VERSION 1.6.7 **//
 //* DESCRIPTION Shows your tracked tags on your sidebar **//
 //* DEVELOPER new-xkit **//
 //* FRAME false **//
@@ -40,11 +40,6 @@ XKit.extensions.classic_tags = new Object({
 		},
 		"prepend_sidebar": {
 		    text: "Put tags at top of sidebar",
-		    default: false,
-		    value: false
-		},
-		"alphabetical_tags": {
-			text: "Sort tags alphabetically",
 		    default: false,
 		    value: false
 		},
@@ -305,10 +300,6 @@ XKit.extensions.classic_tags = new Object({
 
 		var extra_classes = "";
 		var m_html = "";
-
-		if (this.preferences.alphabetical_tags.value) {
-			this.tags.tags.sort((tagA, tagB) => (tagA.name > tagB.name) ? 1 : -1);
-		}
 
 		this.tags.tags.forEach(tag => {
 
