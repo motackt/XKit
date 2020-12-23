@@ -1,5 +1,5 @@
 //* TITLE Editable Reblogs **//
-//* VERSION 3.3.12 **//
+//* VERSION 3.3.11 **//
 //* DESCRIPTION Restores ability to edit previous reblogs of a post **//
 //* DEVELOPER new-xkit **//
 //* FRAME false **//
@@ -88,11 +88,6 @@ XKit.extensions.editable_reblogs = new Object({
 		var location_path = window.location.pathname;
 		var location_items = location_path.split("/");
 		location_items.shift();
-
-		if (XKit.page.form_frame) {
-			location_items = location_items.slice(2);
-		}
-
 		if (location_items[0] != "reblog" && location_items[0] != "edit") {
 			return;
 		}
@@ -174,11 +169,6 @@ XKit.extensions.editable_reblogs = new Object({
 		var location_path = window.location.pathname;
 		var location_items = location_path.split("/");
 		location_items.shift();
-
-		if (XKit.page.form_frame) {
-			location_items = location_items.slice(2);
-		}
-
 		if (location_items[0] != "edit") {
 			return;
 		}
@@ -472,10 +462,6 @@ XKit.extensions.editable_reblogs = new Object({
 		var location_path = window.location.pathname;
 		var location_items = location_path.split("/");
 		location_items.shift();
-
-		if (XKit.page.form_frame) {
-			location_items = location_items.slice(2);
-		}
 
 		request.form_key = XKit.interface.form_key();
 		request.channel_id = $('.post-form--header .tumblelog-select .caption').text();
