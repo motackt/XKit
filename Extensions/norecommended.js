@@ -1,5 +1,5 @@
 //* TITLE No Recommended **//
-//* VERSION 2.3.4 **//
+//* VERSION 2.3.3 **//
 //* DESCRIPTION Removes recommended posts **//
 //* DETAILS This extension removes recommended posts from your dashboard. To remove Recommended Blogs on the sidebar, please use Tweaks extension. **//
 //* DEVELOPER STUDIOXENIX **//
@@ -37,11 +37,14 @@ XKit.extensions.norecommended = new Object({
 
 		if (XKit.page.react) {
 			XKit.tools.add_css(`
-				.norecommended-hidden,
- 				.norecommended-hidden + :not(.norecommended-done) {
-					height: 0;
-					margin: 0;
-					overflow: hidden;
+				.norecommended-note {
+					height: 1em;
+					color: var(--white-on-dark);
+					opacity: 0.4;
+					padding: var(--post-header-vertical-padding) var(--post-padding);
+				}
+				.norecommended-note ~ * {
+					display: none;
 				}
 			`, 'norecommended');
 			XKit.post_listener.add('norecommended', this.react_do);
@@ -66,7 +69,7 @@ XKit.extensions.norecommended = new Object({
 				const is_pinned = loggingReason.startsWith('pin:');
 
 				if ((no_search.value && is_search) || (no_pinned.value && is_pinned) || (!is_search && !is_pinned)) {
-					$this.addClass('norecommended-hidden');
+					$this.prepend('<div class="norecommended-note">Hidden by No Recommended</div>');
 				}
 			}
 		});
@@ -82,7 +85,7 @@ XKit.extensions.norecommended = new Object({
 	destroy: function() {
 		this.running = false;
 		$('.norecommended-done').removeClass('norecommended-done');
-		$('.norecommended-hidden').removeClass('norecommended-hidden');
+		$('.norecommended-note').remove();
 		XKit.post_listener.remove('norecommended');
 		XKit.tools.remove_css("norecommended");
 	}
