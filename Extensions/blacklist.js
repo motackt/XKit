@@ -127,6 +127,10 @@ XKit.extensions.blacklist = new Object({
 		XKit.css_map.add_callback('blacklist', this.actuallyRun);
 	},
 
+	keyToCss: function(key) {
+		return XKit.css_map.keyToCss(key);
+	},
+
 	actuallyRun: function() {
 
 		if ($("body").hasClass("dashboard_messages_inbox") === true || $("body").hasClass("dashboard_messages_submissions") === true) {
@@ -156,8 +160,8 @@ XKit.extensions.blacklist = new Object({
 
 		$(document).on('click', ".xblacklist_open_post", XKit.extensions.blacklist.unhide_post);
 
-		const postSel = XKit.css_map.keyToCss('listTimelineObject') || '.post';
-		const postContentSel = XKit.css_map.keyToCss('post') || '.post_content';
+		const postSel = this.keyToCss('listTimelineObject') || '.post';
+		const postContentSel = this.keyToCss('post') || '.post_content';
 
 		if (this.preferences.mini_block.value === true) {
 
@@ -517,7 +521,7 @@ XKit.extensions.blacklist = new Object({
 
 		if (XKit.extensions.blacklist.running !== true) {return; }
 
-		const postSel = XKit.css_map.keyToCss('listTimelineObject') || '.post';
+		const postSel = XKit.extensions.blacklist.keyToCss('listTimelineObject') || '.post';
 		$(postSel).not(".xblacklist-done").each(function() {
 
 			try {
@@ -536,7 +540,7 @@ XKit.extensions.blacklist = new Object({
 
 				// Collect the tags
 				var tag_array = [];
-				const tagSel = XKit.css_map.keyToCss('tag') || '.post_tag';
+				const tagSel = XKit.extensions.blacklist.keyToCss('tag') || '.post_tag';
 				if ($(this).find(tagSel).length > 0) {
 					$(this).find(tagSel).each(function() {
 						tag_array.push($(this).html().replace("#", "").toLowerCase());
@@ -553,16 +557,14 @@ XKit.extensions.blacklist = new Object({
 				var m_author = "";
 				if (XKit.extensions.blacklist.preferences.check_authors.value) {
 					try {
-						const postInfoSel = XKit.css_map.keyToCss('blogLink') ||
-							'.post_info_link, .reblog-tumblelog-name';
-						var post_info_links = $(this).find(postInfoSel).map(function() {
+						var post_info_links = $(this).find(".post_info_link, .reblog-tumblelog-name").map(function() {
 							return $(this).text();
 						});
 
 						// Join the text of the post info links with spaces
 						m_author += post_info_links.get().join(" ");
 
-						const contentSourceSel = XKit.css_map.keyToCss('contentSource') || '.reblog_source';
+						const contentSourceSel = XKit.extensions.blacklist.keyToCss('contentSource') || '.reblog_source';
 						if ($(this).find(contentSourceSel).length > 0) {
 							m_author = m_author + " " + $(this).find(contentSourceSel).find("a").html();
 						}
@@ -578,9 +580,9 @@ XKit.extensions.blacklist = new Object({
 				// Collect the content.
 				var m_content = "";
 
-				// Old methods of finding content
-				if ($(this).find('.post_text_wrapper').length > 0) {
-					m_content = $(this).find('.post_text_wrapper').html();
+				const textBlockSel = XKit.extensions.blacklist.keyToCss('textBlock') || '.post_text_wrapper';
+				if ($(this).find(textBlockSel).length > 0) {
+					m_content = $(this).find(textBlockSel).html();
 				}
 
 				if ($(this).find(".post_body").length > 0) {
@@ -599,14 +601,6 @@ XKit.extensions.blacklist = new Object({
 
 				if ($(this).find(".reblog-content").length > 0) {
 					m_content = $(this).find(".reblog-content").map(function() {
-					    return $(this).html();
-					}).get().join(" ");
-				}
-
-				// New method for finding content
-				const rowsSel = XKit.css_map.keyToCss('rows');
-				if (rowsSel && $(this).find(rowsSel).length > 0) {
-					m_content = $(this).find(rowsSel).map(function() {
 					    return $(this).html();
 					}).get().join(" ");
 				}
@@ -701,7 +695,7 @@ XKit.extensions.blacklist = new Object({
 		}
 
 		$(m_div).find(".xblacklist_excuse").remove();
-		const postContentSel = XKit.css_map.keyToCss('post') || '.post_content';
+		const postContentSel = XKit.extensions.blacklist.keyToCss('post') || '.post_content';
 		$(m_div).find(postContentSel).html($(m_div).find(".xblacklist_old_content").html());
 
 		// Fix for canvases on Disable Gifs:
@@ -734,7 +728,7 @@ XKit.extensions.blacklist = new Object({
 			return;
 		}
 
-		const postContentSel = XKit.css_map.keyToCss('post') || '.post_content';
+		const postContentSel = XKit.extensions.blacklist.keyToCss('post') || '.post_content';
 
 		var old_content = '<div style="display: none;" class="xblacklist_old_content">' +
 					$(obj).find(postContentSel).html() + '</div>';
@@ -1024,7 +1018,7 @@ XKit.extensions.blacklist = new Object({
 				$(this).find(".post-source-footer").css('display', 'block');
 				$(this).find(".post_answer").css("display", "block");
 				$(this).find(".xblacklist_excuse").remove();
-				const postContentSel = XKit.css_map.keyToCss('post') || '.post_content';
+				const postContentSel = XKit.extensions.blacklist.keyToCss('post') || '.post_content';
 				$(this).find(postContentSel).html($(this).find(".xblacklist_old_content").html());
 				$(this).find(".xkit-shorten-posts-embiggen").css("display", "block");
 				XKit.extensions.blacklist.unhide_post($(this));
