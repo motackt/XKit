@@ -1,5 +1,5 @@
 //* TITLE No Recommended **//
-//* VERSION 2.3.5 **//
+//* VERSION 2.3.4 **//
 //* DESCRIPTION Removes recommended posts **//
 //* DETAILS This extension removes recommended posts from your dashboard. To remove Recommended Blogs on the sidebar, please use Tweaks extension. **//
 //* DEVELOPER STUDIOXENIX **//
@@ -29,12 +29,6 @@ XKit.extensions.norecommended = new Object({
 			text: "Hide recommended posts under permalinked posts on user blogs",
 			default: false,
 			value: false
-		},
-		"hide_posts_completely": {
-			text: "Hide posts completely",
-			default: false,
-			value: false,
-			experimental: true
 		}
 	},
 
@@ -43,15 +37,6 @@ XKit.extensions.norecommended = new Object({
 
 		if (XKit.page.react) {
 			XKit.tools.add_css(`
-				.norecommended-note {
-					height: 1em;
-					color: var(--white-on-dark);
-					opacity: 0.4;
-					padding: var(--post-header-vertical-padding) var(--post-padding);
-				}
-				.norecommended-note ~ * {
-					display: none;
-				}
 				.norecommended-hidden,
  				.norecommended-hidden + :not([data-id]) {
 					height: 0;
@@ -72,7 +57,7 @@ XKit.extensions.norecommended = new Object({
 	react_do: function() {
 		$('[data-id]:not(.norecommended-done)').each(async function() {
 			const $this = $(this).addClass('norecommended-done');
-			const {no_search, no_pinned, hide_posts_completely} = XKit.extensions.norecommended.preferences;
+			const {no_search, no_pinned} = XKit.extensions.norecommended.preferences;
 			const {recommendationReason} = await XKit.interface.react.post_props($this.attr('data-id'));
 
 			if (recommendationReason && recommendationReason.hasOwnProperty('loggingReason')) {
@@ -81,11 +66,7 @@ XKit.extensions.norecommended = new Object({
 				const is_pinned = loggingReason.startsWith('pin:');
 
 				if ((no_search.value && is_search) || (no_pinned.value && is_pinned) || (!is_search && !is_pinned)) {
-					if (hide_posts_completely.value) {
-						$this.addClass('norecommended-hidden');
-					} else {
-						$this.prepend('<div class="norecommended-note">Hidden by No Recommended</div>');
-					}
+					$this.addClass('norecommended-hidden');
 				}
 			}
 		});
@@ -102,7 +83,6 @@ XKit.extensions.norecommended = new Object({
 		this.running = false;
 		$('.norecommended-done').removeClass('norecommended-done');
 		$('.norecommended-hidden').removeClass('norecommended-hidden');
-		$('.norecommended-note').remove();
 		XKit.post_listener.remove('norecommended');
 		XKit.tools.remove_css("norecommended");
 	}
