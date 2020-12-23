@@ -1,5 +1,5 @@
 //* TITLE XKit Patches **//
-//* VERSION 7.4.2 **//
+//* VERSION 7.4.1 **//
 //* DESCRIPTION Patches framework **//
 //* DEVELOPER new-xkit **//
 
@@ -372,11 +372,11 @@ XKit.extensions.xkit_patches = new Object({
 						} catch (exception) {
 							window.postMessage({
 								xkit_callback_nonce: callback_nonce,
-								exception: JSON.stringify({
+								exception: {
 									...exception,
 									message: exception.message,
 									stack: exception.stack,
-								}),
+								},
 							})
 						}
 					})(add_tag)`;
@@ -388,7 +388,7 @@ XKit.extensions.xkit_patches = new Object({
 							const original_exception = data.exception && JSON.parse(data.exception);
 							const error = new Error(`Error in injected function (${original_exception.message})`);
 							error.cause = original_exception;
-							reject(error);
+							reject();
 						}
 					};
 
