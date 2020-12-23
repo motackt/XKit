@@ -1,5 +1,5 @@
 //* TITLE XKit Main **//
-//* VERSION 2.0.2 **//
+//* VERSION 2.0.1 **//
 //* DESCRIPTION Boots XKit up **//
 //* DEVELOPER New-XKit **//
 (function() {
@@ -12,14 +12,11 @@
 
 		run: function() {
 
-			if (location.href.includes("://www.tumblr.com/login") || location.href.includes("://www.tumblr.com/settings")) {
-				console.log("Refusing to run XKit, login or settings page!");
-				return;
-			}
-
-			if (!document.doctype || document.doctype.name !== "html") {
-				console.log("Refusing to run XKit, not an HTML document!");
-				return;
+			if (typeof document.location.href !== "undefined") {
+				if (document.location.href.indexOf("://www.tumblr.com/login") !== -1 || document.location.href.indexOf("://www.tumblr.com/settings") !== -1) {
+					console.log("Refusing to run XKit, login or settings page!");
+					return;
+				}
 			}
 
 			if (XKit.extensions.xkit_main.running === true) {
