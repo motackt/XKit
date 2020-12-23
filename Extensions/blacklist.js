@@ -132,6 +132,7 @@ XKit.extensions.blacklist = new Object({
 	},
 
 	actuallyRun: function() {
+		console.log('we actually running');
 
 		if ($("body").hasClass("dashboard_messages_inbox") === true || $("body").hasClass("dashboard_messages_submissions") === true) {
 			if (this.preferences.dont_on_inbox.value) {
@@ -160,8 +161,8 @@ XKit.extensions.blacklist = new Object({
 
 		$(document).on('click', ".xblacklist_open_post", XKit.extensions.blacklist.unhide_post);
 
-		const postSel = this.keyToCss('listTimelineObject') || '.post';
-		const postContentSel = this.keyToCss('post') || '.post_content';
+		const postSel = this.keyToCss('listTimelineObject');
+		const postContentSel = this.keyToCss('post');
 
 		if (this.preferences.mini_block.value === true) {
 
@@ -521,7 +522,7 @@ XKit.extensions.blacklist = new Object({
 
 		if (XKit.extensions.blacklist.running !== true) {return; }
 
-		const postSel = XKit.extensions.blacklist.keyToCss('listTimelineObject') || '.post';
+		const postSel = XKit.extensions.blacklist.keyToCss('listTimelineObject');
 		$(postSel).not(".xblacklist-done").each(function() {
 
 			try {
@@ -540,7 +541,7 @@ XKit.extensions.blacklist = new Object({
 
 				// Collect the tags
 				var tag_array = [];
-				const tagSel = XKit.extensions.blacklist.keyToCss('tag') || '.post_tag';
+				const tagSel = XKit.extensions.blacklist.keyToCss('tag');
 				if ($(this).find(tagSel).length > 0) {
 					$(this).find(tagSel).each(function() {
 						tag_array.push($(this).html().replace("#", "").toLowerCase());
@@ -564,7 +565,7 @@ XKit.extensions.blacklist = new Object({
 						// Join the text of the post info links with spaces
 						m_author += post_info_links.get().join(" ");
 
-						const contentSourceSel = XKit.extensions.blacklist.keyToCss('contentSource') || '.reblog_source';
+						const contentSourceSel = XKit.extensions.blacklist.keyToCss('contentSource');
 						if ($(this).find(contentSourceSel).length > 0) {
 							m_author = m_author + " " + $(this).find(contentSourceSel).find("a").html();
 						}
@@ -580,7 +581,8 @@ XKit.extensions.blacklist = new Object({
 				// Collect the content.
 				var m_content = "";
 
-				const textBlockSel = XKit.extensions.blacklist.keyToCss('textBlock') || '.post_text_wrapper';
+				const textBlockSel = XKit.extensions.blacklist.keyToCss('textBlock');
+				console.log('I get sel', textBlockSel);
 				if ($(this).find(textBlockSel).length > 0) {
 					m_content = $(this).find(textBlockSel).html();
 				}
@@ -695,7 +697,7 @@ XKit.extensions.blacklist = new Object({
 		}
 
 		$(m_div).find(".xblacklist_excuse").remove();
-		const postContentSel = XKit.extensions.blacklist.keyToCss('post') || '.post_content';
+		const postContentSel = XKit.extensions.blacklist.keyToCss('post');
 		$(m_div).find(postContentSel).html($(m_div).find(".xblacklist_old_content").html());
 
 		// Fix for canvases on Disable Gifs:
@@ -728,7 +730,7 @@ XKit.extensions.blacklist = new Object({
 			return;
 		}
 
-		const postContentSel = XKit.extensions.blacklist.keyToCss('post') || '.post_content';
+		const postContentSel = XKit.extensions.blacklist.keyToCss('post');
 
 		var old_content = '<div style="display: none;" class="xblacklist_old_content">' +
 					$(obj).find(postContentSel).html() + '</div>';
@@ -1018,7 +1020,7 @@ XKit.extensions.blacklist = new Object({
 				$(this).find(".post-source-footer").css('display', 'block');
 				$(this).find(".post_answer").css("display", "block");
 				$(this).find(".xblacklist_excuse").remove();
-				const postContentSel = XKit.extensions.blacklist.keyToCss('post') || '.post_content';
+				const postContentSel = XKit.extensions.blacklist.keyToCss('post');
 				$(this).find(postContentSel).html($(this).find(".xblacklist_old_content").html());
 				$(this).find(".xkit-shorten-posts-embiggen").css("display", "block");
 				XKit.extensions.blacklist.unhide_post($(this));

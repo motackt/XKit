@@ -663,9 +663,6 @@ XKit.extensions.xkit_patches = new Object({
 					}
 				},
 				keyToCss: function(key) {
-					if (!this.cssMap || !this.cssMap.hasOwnProperty(key)) {
-						return;
-					}
 					return this.cssMap[key].map(cls => '.' + cls).join(', ');
 				},
 			};
