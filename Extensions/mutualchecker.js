@@ -1,5 +1,5 @@
 //* TITLE Mutual Checker **//
-//* VERSION 2.0.4 **//
+//* VERSION 2.0.3 **//
 //* DESCRIPTION A simple way to see who follows you back **//
 //* DETAILS Adds a small icon and &quot;[user] follows you&quot; hovertext to URLs you see in post headers (when appropriate).<br><br>Only checks the URL when the person directly made/reblogged/submitted/published the post, and can only check main blogs. **//
 //* DEVELOPER New-XKit **//
@@ -26,16 +26,12 @@ XKit.extensions.mutualchecker = new Object({
 	},
 
 	cpanel: function() {
-		$('select[data-setting-id="main_blog"] option').first().remove();
+		$("select[data-setting-id=\"main_blog\"] option").first().remove();
 	},
 
 	run: function() {
 		this.running = true;
 		XKit.blog_listener.add("mutualchecker", this.init);
-		let today = new Date();
-		if (today.getMonth() === 3 && today.getDate() === 1) {
-			$(document.body).addClass("xkit-april-fools");
-		}
 	},
 
 	init: function(blogs) {
@@ -54,8 +50,11 @@ XKit.extensions.mutualchecker = new Object({
 			if (following || !$(this).find(".follow_button").length) {
 				var $name_div = $(this).find(".name-link");
 				var url = $name_div.text();
-				XKit.interface.is_following(url, XKit.extensions.mutualchecker.preferences.main_blog.value)
-				.then(follow => follow && XKit.extensions.mutualchecker.add_label($name_div, url));
+				XKit.interface.is_following(url, XKit.extensions.mutualchecker.preferences.main_blog.value).then(function(follow) {
+					if (follow) {
+						XKit.extensions.mutualchecker.add_label($name_div, url);
+					}
+				});
 			}
 		});
 	},
@@ -87,13 +86,12 @@ XKit.extensions.mutualchecker = new Object({
 	check: function(json_obj, $link) {
 		if (json_obj.following && !json_obj.customizable) {
 			if (typeof this.mutuals[json_obj.name] === "undefined") {
-				XKit.interface.is_following(json_obj.name, this.preferences.main_blog.value)
-				.then(follow => {
+				XKit.interface.is_following(json_obj.name, this.preferences.main_blog.value).then(function(follow) {
 					if (follow) {
-						this.add_label($link, json_obj.name);
-						this.mutuals[json_obj.name] = true;
+						XKit.extensions.mutualchecker.add_label($link, json_obj.name);
+						XKit.extensions.mutualchecker.mutuals[json_obj.name] = true;
 					} else {
-						this.mutuals[json_obj.name] = false;
+						XKit.extensions.mutualchecker.mutuals[json_obj.name] = false;
 					}
 				});
 			} else if (this.mutuals[json_obj.name]) {
@@ -104,7 +102,7 @@ XKit.extensions.mutualchecker = new Object({
 
 	add_label: function($name_div, user) {
 		if ($name_div.hasClass("post_info_submissions")) {
-			$name_div.html('<span class="mutuals' + ( this.preferences.put_in_front.value ? " mutuals-front" : "") + '">' + user + '</span>' + $name_div.text().trim().substring(user.length));
+			$name_div.html('<span class="mutuals' + ( XKit.extensions.mutualchecker.preferences.put_in_front.value ? " mutuals-front" : "") + '">' + user + '</span>' + $name_div.text().trim().substring(user.length));
 		} else {
 			$name_div.addClass("mutuals").attr("title", user + " follows you");
 			if (XKit.extensions.mutualchecker.preferences.put_in_front.value) {
