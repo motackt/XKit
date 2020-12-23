@@ -65,6 +65,7 @@
 .xkit--react .xtimestamp.xtimestamp-bottom {
 	margin: 0;
 	padding: 0;
+	display: inline-block;
 }
 
 .xkit--react .xtimestamp-bottom-container {
