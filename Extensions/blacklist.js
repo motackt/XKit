@@ -124,15 +124,6 @@ XKit.extensions.blacklist = new Object({
 
 	run: function() {
 		this.running = true;
-		XKit.css_map.add_callback('blacklist', this.actuallyRun);
-	},
-
-	keyToCss: function(key) {
-		return XKit.css_map.keyToCss(key);
-	},
-
-	actuallyRun: function() {
-		console.log('we actually running');
 
 		if ($("body").hasClass("dashboard_messages_inbox") === true || $("body").hasClass("dashboard_messages_submissions") === true) {
 			if (this.preferences.dont_on_inbox.value) {
@@ -161,9 +152,6 @@ XKit.extensions.blacklist = new Object({
 
 		$(document).on('click', ".xblacklist_open_post", XKit.extensions.blacklist.unhide_post);
 
-		const postSel = this.keyToCss('listTimelineObject');
-		const postContentSel = this.keyToCss('post');
-
 		if (this.preferences.mini_block.value === true) {
 
 			var mini_ui =
@@ -172,7 +160,7 @@ XKit.extensions.blacklist = new Object({
 						" position: absolute; top: 0; left: 0; width: 100%; " +
 						" color: rgba(255,255,255,.43); height: 27px !important; padding: 0px; !important; " +
 						" line-height: 27px !important; padding-left: 15px; !important; } " +
-					` .xblacklist_blacklisted_post ${postContentSel} { ` +
+					" .xblacklist_blacklisted_post .post_content { " +
 						" background: transparent; color: rgba(255,255,255,.43); } " +
 					" .xblacklist_blacklisted_post:hover .xblacklist_open_post { " +
 						"display: inline-block; height: unset; line-height: initial;} " +
@@ -192,15 +180,15 @@ XKit.extensions.blacklist = new Object({
 			// Set opacity of all post content to 0, upon Blacklist's
 			// completion set it back to 1
 			XKit.tools.add_css(
-				`${postContentSel} { opacity: 0; } ` +
-				`${postSel}.xblacklist-done ${postContentSel} { opacity: 1; } ` +
-				`${postSel} .post_header::after { content: "Hidden by Blacklist"; }` +
-				`${postSel}.xblacklist-done .post_header::after { content: ""; }`,
+				".post_content { opacity: 0; }" +
+				".post.xblacklist-done .post_content { opacity: 1; }" +
+				".post .post_header::after { content: \"Hidden by Blacklist\"; }" +
+				".post.xblacklist-done .post_header::after { content: \"\"; }",
 				"xkit_blacklist_hide_by_default"
 			);
 		}
 
-		if ($(postSel).length > 0) {
+		if ($(".posts .post").length > 0) {
 			XKit.post_listener.add("blacklist", XKit.extensions.blacklist.check);
 			XKit.extensions.blacklist.check();
 
@@ -522,8 +510,7 @@ XKit.extensions.blacklist = new Object({
 
 		if (XKit.extensions.blacklist.running !== true) {return; }
 
-		const postSel = XKit.extensions.blacklist.keyToCss('listTimelineObject');
-		$(postSel).not(".xblacklist-done").each(function() {
+		$(".posts .post").not(".xblacklist-done").each(function() {
 
 			try {
 
@@ -541,9 +528,13 @@ XKit.extensions.blacklist = new Object({
 
 				// Collect the tags
 				var tag_array = [];
-				const tagSel = XKit.extensions.blacklist.keyToCss('tag');
-				if ($(this).find(tagSel).length > 0) {
-					$(this).find(tagSel).each(function() {
+				if ($(this).find(".post_tag").length > 0) {
+					$(this).find(".post_tag").each(function() {
+						tag_array.push($(this).html().replace("#", "").toLowerCase());
+					});
+				}
+				if ($(this).find(".tag").length > 0) {
+					$(this).find(".tag").each(function() {
 						tag_array.push($(this).html().replace("#", "").toLowerCase());
 					});
 				}
@@ -562,12 +553,11 @@ XKit.extensions.blacklist = new Object({
 							return $(this).text();
 						});
 
-						// Join the text of the post info links with spaces
+					// Join the text of the post info links with spaces
 						m_author += post_info_links.get().join(" ");
 
-						const contentSourceSel = XKit.extensions.blacklist.keyToCss('contentSource');
-						if ($(this).find(contentSourceSel).length > 0) {
-							m_author = m_author + " " + $(this).find(contentSourceSel).find("a").html();
+						if ($(this).find(".reblog_source").length > 0) {
+							m_author = m_author + " " + $(this).find(".reblog_source a").html();
 						}
 
 						if ($(this).find(".post_source_link").length > 0) {
@@ -581,10 +571,8 @@ XKit.extensions.blacklist = new Object({
 				// Collect the content.
 				var m_content = "";
 
-				const textBlockSel = XKit.extensions.blacklist.keyToCss('textBlock');
-				console.log('I get sel', textBlockSel);
-				if ($(this).find(textBlockSel).length > 0) {
-					m_content = $(this).find(textBlockSel).html();
+				if ($(this).find(".post_text_wrapper").length > 0) {
+					m_content = $(this).find(".post_text_wrapper").html();
 				}
 
 				if ($(this).find(".post_body").length > 0) {
@@ -620,8 +608,6 @@ XKit.extensions.blacklist = new Object({
 			    m_content = m_content.replace(/<a\s+(?:[^>]*?\s+)?href="([^"]*)".*?>/gm, ' $1 ');
 				// Strip HTML tags.
 				m_content = m_content.replace(/<(?:.|\n)*?>/gm, ' ');
-
-				console.log('all the content is', m_content);
 
 				var m_result = XKit.extensions.blacklist.do_post($(this), m_content, tag_array);
 				if (m_result !== "") {
@@ -697,8 +683,7 @@ XKit.extensions.blacklist = new Object({
 		}
 
 		$(m_div).find(".xblacklist_excuse").remove();
-		const postContentSel = XKit.extensions.blacklist.keyToCss('post');
-		$(m_div).find(postContentSel).html($(m_div).find(".xblacklist_old_content").html());
+		$(m_div).find(".post_content").html($(m_div).find(".xblacklist_old_content").html());
 
 		// Fix for canvases on Disable Gifs:
 		if ($(m_div).hasClass("disable-gifs-checked")) {
@@ -730,10 +715,8 @@ XKit.extensions.blacklist = new Object({
 			return;
 		}
 
-		const postContentSel = XKit.extensions.blacklist.keyToCss('post');
-
 		var old_content = '<div style="display: none;" class="xblacklist_old_content">' +
-					$(obj).find(postContentSel).html() + '</div>';
+					$(obj).find(".post_content").html() + '</div>';
 
 		var to_add_type = "";
 
@@ -750,11 +733,6 @@ XKit.extensions.blacklist = new Object({
 			$(obj).attr('id', post_id);
 		}
 
-		if (!post_id) {
-			post_id = $(obj).attr('data-id');
-			$(obj).attr('id', post_id);
-		}
-
 		var block_excuse = '<div class="xblacklist_excuse">' +
 					'Blocked because it contains the word "<b>' + word + '</b>"'  + to_add_type +
 					'<div data-post-id="' + post_id + '" class="xblacklist_open_post xkit-button">Show it anyway</div></div>';
@@ -768,7 +746,7 @@ XKit.extensions.blacklist = new Object({
 		$(obj).addClass("xblacklist_blacklisted_post");
 		$(obj).find(".post_info").css("display", "none");
 		$(obj).find(".post_controls").css("display", "none");
-		$(obj).find(postContentSel).html(old_content + block_excuse);
+		$(obj).find(".post_content").html(old_content + block_excuse);
 		$(obj).find(".post_footer_links").css('display', 'none');
 		$(obj).find(".post_source").css('display', 'none');
 		$(obj).find(".post-source-footer").css('display', 'none');
@@ -1020,8 +998,7 @@ XKit.extensions.blacklist = new Object({
 				$(this).find(".post-source-footer").css('display', 'block');
 				$(this).find(".post_answer").css("display", "block");
 				$(this).find(".xblacklist_excuse").remove();
-				const postContentSel = XKit.extensions.blacklist.keyToCss('post');
-				$(this).find(postContentSel).html($(this).find(".xblacklist_old_content").html());
+				$(this).find(".post_content").html($(this).find(".xblacklist_old_content").html());
 				$(this).find(".xkit-shorten-posts-embiggen").css("display", "block");
 				XKit.extensions.blacklist.unhide_post($(this));
 			});
