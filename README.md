@@ -1,4 +1,6 @@
-# XKit [![CI](https://github.com/new-xkit/XKit/workflows/CI/badge.svg)](https://github.com/new-xkit/XKit/actions?query=workflow%3ACI)
+# XKit
+
+[![Build Status](https://travis-ci.org/new-xkit/XKit.svg?branch=master)](https://travis-ci.org/new-xkit/XKit)
 
 XKit is a small extension framework that powers tweaks for Tumblr.
 
