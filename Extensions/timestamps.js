@@ -48,11 +48,6 @@ XKit.extensions.timestamps = new Object({
 			default: "MMMM Do YYYY, h:mm:ss a",
 			value: "MMMM Do YYYY, h:mm:ss a"
 		},
-		no_xkit_rewritten_location: {
-			text: "Display timestamps on the top of posts instead of the bottom",
-			default: false,
-			value: false
-		},
 		only_on_hover: {
 			text: "Hide timestamps until I hover over a post",
 			default: false,
@@ -130,7 +125,6 @@ XKit.extensions.timestamps = new Object({
 				this.reblogs_class = XKit.css_map.keyToCss("reblog");
 				this.reblog_headers_class = XKit.css_map.keyToCss("reblogHeader");
 				this.blog_link_class = XKit.css_map.keyToCss("blogLink");
-				this.note_count_class = XKit.css_map.keyToCss('noteCount');
 
 				if (this.preferences.posts.value || (this.preferences.inbox.value && XKit.interface.where().inbox)) {
 					this.react_add_timestamps();
@@ -257,7 +251,6 @@ XKit.extensions.timestamps = new Object({
 	},
 
 	react_add_timestamps: function() {
-		const {note_count_class, preferences} = XKit.extensions.timestamps;
 		var $posts = $("[data-id]:not(.xkit_timestamps)");
 		$posts.addClass("xkit_timestamps");
 
@@ -270,17 +263,9 @@ XKit.extensions.timestamps = new Object({
 			if (XKit.extensions.timestamps.in_search) {
 				xtimestamp_class = "xtimestamp-in-search";
 			}
-			if (!preferences.no_xkit_rewritten_location.value) {
-				xtimestamp_class += " xtimestamp-bottom";
-			}
 
 			var xtimestamp_html = `<div class="xkit_timestamp_${post_id} ${xtimestamp_class} xtimestamp-loading">&nbsp;</div>`;
-
-			if (preferences.no_xkit_rewritten_location.value) {
-				$(xtimestamp_html).insertAfter($post.find("header"));
-			} else {
-				$(xtimestamp_html).insertAfter($post.find(note_count_class));
-			}
+			$(xtimestamp_html).insertAfter($post.find("header"));
 
 			var note = $(".xkit_timestamp_" + post_id);
 			XKit.extensions.timestamps.react_fetch_timestamp(post_id, note);
