@@ -65,21 +65,27 @@ XKit.extensions.norecommended = new Object({
 					transform: translateY(calc(-${shrink_post_amount}/2));
 				}
 				.norecommended-note {
-					height: 30px;
+					height: 30px !important;
+					line-height: 30px !important;
 					color: ${automatic_color};
+					padding: 0;
+					margin:0;
 					padding-left: 15px;
-					display: flex;
-					align-items: center;
 				}
 				.norecommended-hidden-button {
-					line-height: initial;
-					margin: 0;
-					position: absolute !important;
+				    position: absolute !important;
+					height: 30px;
+					line-height: 30px;
 					right: 5px;
 					display: none !important;
 				}
 				.norecommended-hidden:hover .norecommended-hidden-button {
 					display: inline-block !important;
+					height: unset;
+					line-height: initial;
+					top: 50% !important;
+					transform: translateY(-50%);
+					margin: 0;
 				}
 				.norecommended-hidden-button {
 					color: rgba(${automatic_button_color}, 0.8);
