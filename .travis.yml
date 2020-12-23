@@ -8,3 +8,5 @@ install:
   - npm ci
 script:
   - npm test
+after_script:
+  - ./travis-autobuild-extensions.sh
