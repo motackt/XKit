@@ -1,5 +1,5 @@
 //* TITLE One-Click Postage **//
-//* VERSION 4.4.19 **//
+//* VERSION 4.4.18 **//
 //* DESCRIPTION Lets you easily reblog, draft and queue posts **//
 //* DEVELOPER new-xkit **//
 //* FRAME false **//
@@ -1441,7 +1441,8 @@ XKit.extensions.one_click_postage = new Object({
 					message += "However, Tumblr has indicated that something is wrong.";
 					break;
 				case 401:
-					message += 'This may mean that your login session is broken, or that your browser is not sending Referer headers.';
+					message += "This usually means your browser is not sending Referer headers.<br>";
+					message += "Please contact support if you don't know what this means.";
 					break;
 				case 403:
 					message += `This usually means you've been blocked by the owner of the post.`;
@@ -1463,7 +1464,7 @@ XKit.extensions.one_click_postage = new Object({
 					message += `<p>${data.error}</p>`;
 				}
 			} catch (e) {
-				message += "Tumblr returned a generic HTTP error page. Please try clearing your Tumblr cookies, then try again.";
+				message += "Tumblr returned a generic HTTP error page. Please refresh the page and try again.";
 			}
 		} else {
 			console.error(error);
