@@ -1,5 +1,5 @@
 //* TITLE Blacklist **//
-//* VERSION 3.1.3 **//
+//* VERSION 3.1.2 **//
 //* DESCRIPTION Clean your dash **//
 //* DETAILS This extension allows you to block posts based on the words you specify. If a post has the text you've written in the post itself or it's tags, it will be replaced by a warning, or won't be shown on your dashboard, depending on your settings. **//
 //* DEVELOPER new-xkit **//
@@ -628,11 +628,10 @@ XKit.extensions.blacklist = new Object({
 					}).get().join(" ");
 				}
 
-				// New method for finding content on react. "link" finds the content of link posts
-				const contentSel = XKit.css_map.keyToCss('textBlock') + "," + XKit.css_map.keyToCss('link');
-				var content = $(this).find(contentSel);
-				if (content.length) {
-					m_content += content.map(function() {
+				// New method for finding content
+				const rowsSel = XKit.css_map.keyToCss('rows');
+				if (rowsSel && $(this).find(rowsSel).length > 0) {
+					m_content = $(this).find(rowsSel).map(function() {
 					    return $(this).html();
 					}).get().join(" ");
 				}
@@ -651,7 +650,7 @@ XKit.extensions.blacklist = new Object({
 				// Strip HTML tags.
 				m_content = m_content.replace(/<(?:.|\n)*?>/gm, ' ');
 
-				//console.log('all the content is', m_content);
+				console.log('all the content is', m_content);
 
 				var m_result = XKit.extensions.blacklist.do_post($(this), m_content, tag_array);
 				if (m_result !== "") {
@@ -696,7 +695,12 @@ XKit.extensions.blacklist = new Object({
 
 			}, 300);
 		}
+
+		XKit.extensions.blacklist.check_interval = setTimeout(function() { XKit.extensions.blacklist.check(); }, 2000);
+
 	},
+
+	check_interval: 0,
 
 	hide_post: function($post, word) {
 		const {
